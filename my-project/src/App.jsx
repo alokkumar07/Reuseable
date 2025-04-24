@@ -1,8 +1,10 @@
 import { useState } from "react";
 import Alert from "./common/Alert";
 import Button from "./common/Button";
+import Modal from "./common/Modal";
 
 export default function App() {
+  const[modelOpen,setModelOpen]=useState(false)
   const [value, setValue] = useState("");
   const [alert, setAlert] = useState({
     type: null,
@@ -47,6 +49,29 @@ export default function App() {
       <Alert type={alert.type} open={alert.open} onClose={closeAlert}>
         {alert.message}
       </Alert>
+      <Button onClick={()=>setModelOpen(true)}>Open modal</Button>
+      <Modal 
+      open={modelOpen} 
+      onClose={()=>setModelOpen(false)}
+      Title="AlokKumar"
+      desc={
+        <form className="py-4 space-y-4">
+        <input className="p-2 border border-gray-300 rounded w-full"
+          placeholder="Full Name"
+        />
+        <input className="p-2 border border-gray-300 rounded w-full"
+          placeholder="last Name"
+        />
+        <input className="p-2 border border-gray-300 rounded w-full"
+          placeholder="Email"
+        />
+        <input className="p-2 border border-gray-300 rounded w-full"
+          placeholder="Phone Number"
+        />
+        <Button>Submit</Button>
+        </form>
+      }
+      />
     </div>
   );
 }
