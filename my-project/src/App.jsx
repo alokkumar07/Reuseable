@@ -1,16 +1,52 @@
+import { useState } from "react";
+import Alert from "./common/Alert";
 import Button from "./common/Button";
 
 export default function App() {
+  const [value, setValue] = useState("");
+  const [alert, setAlert] = useState({
+    type: null,
+    open: false,
+    message: "",
+  });
+
+  const handleInput = () => {
+    if (value.length === 0) {
+      setAlert({
+        type: "error",
+        open: true,
+        message: "please Enter your name",
+      });
+    } else {
+      setAlert({
+        type: "success",
+        open: true,
+        message: "User name is Approved",
+      });
+    }
+  };
+
+  const closeAlert = () => {
+    setAlert({
+      type: null,
+      open: false,
+      message: "",
+    });
+  };
   return (
-   <div className="bg-white fixed top-0 left-0 w-full shadow-lg py-8 px-16 flex justify-between items-center">
-    <h1 className="text-2xl font-bold">hello</h1>
-    <div className="space-x-12">
-      <a href="#">Home</a>
-      <a href="#">Images</a>
-      <a href="#">About</a>
-      <a href="#">Download</a>
-      <Button color="info" onDoubleClick={()=>alert()}>Register now</Button>
+    <div className="w-6/12 mx-auto py-8 space-y-4">
+      <h1 className="text-6xl font-bold">form validation</h1>
+      <input
+        className="border border-gray-300 p-3 rounded "
+        placeholder="Enter your name"
+        onChange={(e) => setValue(e.target.value)}
+      />
+      <Button color="warning" onClick={handleInput}>
+        Submit
+      </Button>
+      <Alert type={alert.type} open={alert.open} onClose={closeAlert}>
+        {alert.message}
+      </Alert>
     </div>
-   </div>
   );
 }
