@@ -27,7 +27,7 @@ export const Form = ({ children, vertical = true, getvalue = null }) => {
       }
     }
   
-    getvalue && getvalue(values);
+    getvalue && getvalue(values,form);
   };
   
   return (
