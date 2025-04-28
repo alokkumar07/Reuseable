@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+  />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link
+    href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+    rel="stylesheet"
+/>
+</head>
+<body>
+    <img class="lg:w-6/12 w-full lg:h-auto h-[150px] lg:fixed top-0 left-0 object-cover" src="https://images.pexels.com/photos/25853690/pexels-photo-25853690/free-photo-of-a-girl-sitting-outdoors.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"/>
+    <div class="lg:w-6/12 lg:ml-[50%] lg:px-1 p-8  space-y-8">
+        <div class="flex items-center justify-center  gap-2">
+            <i class="ri-edit-circle-fill text-5xl text-rose-600"></i>
+            <h1 class="text-4xl font-bold text-rose-600">Tasking</h1>
+        </div>
+        <div class="flex lg:flex-row flex-col gap-6 lg:items-center">
+            <input class="px-3 py-2 border border-gray-200 flex-1" placeholder="Search This List"/>
+            <button class="bg-indigo-500 px-8 py-2 font-medium text-white" onclick="openDialog()">
+                <i class="ri-add-line"></i> Add Task</button>
+             </button>
+        </div>
+        <table class="w-full ">
+                <tr class="bg-gray-200 text-left">
+                    <th class="p-3">SN</th>
+                    <th class="p-3">TASK</th>
+                    <th class="p-3">Actions</th>
+                </tr>
+                <tr class="border-b border-slate-200">
+                    <td class="p-3.5">1</td>
+                    <td class="text-gray-600">dbshbdhsbd</td>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <button class="bg-green-600 cursor-pointer w-6 h-6 rounded-full flex items-center justify-center hover:bg-indigo-700 transition-all duration-300 ease-in-out">
+                                <i class="ri-pencil-line "></i>
+                            </button>
+                            <button class="bg-rose-600 cursor-pointer w-6 h-6 rounded-full flex items-center justify-center hover:bg-indigo-700 transition-all duration-300 ease-in-out">
+                                <i class="ri-delete-bin-6-line "></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+           
+        </table>
+    </div>
+   
+    </div>
+    <script src="./js/script.js"></script>
+    
+</body>
+</html>
