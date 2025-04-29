@@ -1,264 +1,171 @@
-// alert("hh")
-window.onload = () => {
-    fetchTasks();
-  };
-  const openDialog = () => {
-    new Swal({
-      html: `
-     <div class="text-left space-y-4">
-     <h1 class="text-xl font-semibold text-black">Add a new task</h1>
-     <form onsubmit="createask(event)" class="space-y-4">
-     <input id="task" class="px-3 w-full py-2 border border-gray-300 rounded" placeholder="Enter task name"/>
-     <input id="date" type="date" class="px-3 w-full py-2 border border-gray-300 rounded"/>
-     <button class="bg-blue-500 text-white px-4 py-2 rounded mt-4">Add</button>
-     </form>
-     </div>
-     `,
-      showConfirmButton: false,
-    });
-  };
-  
-  const createask = (e) => {
-    e.preventDefault();
-    const taskInput = document.getElementById("task");
-    const dateInput = document.getElementById("date");
-    const task = taskInput.value.trim();
-    const date = dateInput.value;
-  
-    const key = Date.now();
-    const payload = JSON.stringify({
-      task: task,
-      date: date,
-      status: "sheduled",
-    });
-    localStorage.setItem(key, payload);
-    new Swal({
-      title: "Task Created",
-      text: `Your task  has been created.`,
-      icon: "success",
-      // showConfirmButton: true,
-    }).then(() => {
-      location.href = location.href;
-    });
-  };
-  
-  const fetchTasks = () => {
-    const keys = Object.keys(localStorage);
-    const uiConatainer = document.getElementById("taskList");
-    var i = 1;
-    for (var key of keys) {
+// Initialize tasks when page loads
+window.onload = () => fetchTasks();
+
+// Open dialog to add a new task
+const openDialog = () => {
+  new Swal({
+    html: `
+      <div class="text-left space-y-4">
+        <h1 class="text-xl font-semibold text-black">Add New Task</h1>
+        <form onsubmit="createTask(event)">
+          <input id="task" class="px-3 w-full py-2 border border-gray-300 rounded" placeholder="Task name" required>
+          <input id="date" type="date" class="px-3 w-full py-2 border border-gray-300 rounded mt-2" required>
+          <button class="bg-blue-500 text-white px-4 py-2 rounded mt-4 w-full">Add Task</button>
+        </form>
+      </div>
+    `,
+    showConfirmButton: false,
+  });
+};
+
+// Create a new task
+const createTask = (e) => {
+  e.preventDefault();
+  const task = document.getElementById("task").value.trim();
+  const date = document.getElementById("date").value;
+
+  if (!task || !date) {
+    alert("Task name and date are required!");
+    return;
+  }
+
+  const key = Date.now().toString();
+  const payload = { task, date, status: "scheduled" };
+  localStorage.setItem(key, JSON.stringify(payload));
+
+  Swal.fire({
+    title: "Task Added!",
+    text: `"${task}" has been created.`,
+    icon: "success",
+  }).then(() => location.reload());
+};
+
+// Fetch all tasks from localStorage
+const fetchTasks = () => {
+  const taskList = document.getElementById("taskList");
+  taskList.innerHTML = ""; // Clear existing tasks
+
+  const keys = Object.keys(localStorage);
+  if (keys.length === 0) {
+    taskList.innerHTML = `<tr><td colspan="5" class="text-center py-4">No tasks found.</td></tr>`;
+    return;
+  }
+
+  keys.forEach((key, index) => {
+    try {
       const data = JSON.parse(localStorage.getItem(key));
-      const ui = `
+      const formattedDate = data.date && moment(data.date).isValid() 
+        ? moment(data.date).format("DD MMM YYYY") 
+        : "No date";
+
+      taskList.innerHTML += `
         <tr class="border-b border-slate-200">
-                      <td class="p-3.5">${i}</td>
-                      <td class="text-gray-600">${data.task}</td>
-                      <td class="text-gray-600">${moment(data.date).format(
-                        "DD MMM YYYY"
-                      )}</td>
-                      <td class="text-gray-600">
-                      <select class="border border-gray-300 rounded p-1" onchange="updateStatus(event,'${key}')">
-                      <option value="sheduled" ${selectedStatus(
-                        "sheduled",
-                        data.status
-                      )}>Sheduled</option>  
-  
-                      <option value="completed" ${selectedStatus(
-                        "completed",
-                        data.status
-                      )}>Completed</option>
-                      <option value="inprogress" ${selectedStatus(
-                        "inprogress",
-                        data.status
-                      )}>In Progress</option>
-                      <option value="cancelled" ${selectedStatus(
-                        "cancelled",
-                        data.status
-                      )}>Cancelled</option>
-                      <option value="postponed" ${selectedStatus(
-                        "postponed",
-                        data.status
-                      )}>Postponed</option>
-                      <option value="onhold" ${selectedStatus(
-                        "onhold",
-                        data.status
-                      )}>On Hold</option>
-  
-                      <option value="notstarted" ${selectedStatus(
-                        "notstarted"
-                      )}>Not Started</option>
-                      <option value="waiting" ${selectedStatus(
-                        "waiting"
-                      )}>Waiting</option>
-  
-                      </select>
-                      </td>
-                      <td>
-                          <div class="flex items-center gap-3">
-                              <button onclick="openDialogEdit('${data.task}','${key}' ,${data.date})" class="bg-green-600 cursor-pointer w-6 h-6 rounded-full flex items-center justify-center hover:bg-indigo-700 transition-all duration-300 ease-in-out">
-                                  <i class="ri-pencil-line "></i>
-                              </button>
-                              <button onclick="deleteTask('${key}')" class="bg-rose-600 cursor-pointer w-6 h-6 rounded-full flex items-center justify-center hover:bg-indigo-700 transition-all duration-300 ease-in-out">
-                                  <i class="ri-delete-bin-6-line "></i>
-                              </button>
-                          </div>
-                      </td>
-                  </tr>
-                  `;
-      uiConatainer.innerHTML += ui;
-      i += 1;
+          <td class="p-3.5">${index + 1}</td>
+          <td class="text-gray-600">${data.task}</td>
+          <td class="text-gray-600">${formattedDate}</td>
+          <td class="text-gray-600">
+            <select class="border border-gray-300 rounded p-1" onchange="updateStatus(event, '${key}')">
+              <option value="scheduled" ${data.status === "scheduled" ? "selected" : ""}>Scheduled</option>
+              <option value="completed" ${data.status === "completed" ? "selected" : ""}>Completed</option>
+              <option value="in-progress" ${data.status === "in-progress" ? "selected" : ""}>In Progress</option>
+              <option value="cancelled" ${data.status === "cancelled" ? "selected" : ""}>Cancelled</option>
+              <option value="Postponed" ${data.status === "Postponed" ? "selected" : ""}>Postponed</option>
+              <option value="On Hold" ${data.status === "On Hold" ? "selected" : ""}>On Hold</option>
+              <option value="Not Started" ${data.status === "Not Started" ? "selected" : ""}>Not Started</option>
+              <option value="Waiting" ${data.status === "Waiting" ? "selected" : ""}>Waiting</option>
+            </select>
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <button onclick="openEditDialog('${key}')" class="bg-blue-500 text-white p-1 rounded">
+                <i class="ri-pencil-line"></i>
+              </button>
+              <button onclick="deleteTask('${key}')" class="bg-red-500 text-white p-1 rounded">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    } catch (e) {
+      console.error("Error loading task:", e);
     }
-  };
-  const deleteTask = (key) => {
+  });
+};
+
+// Open edit dialog
+const openEditDialog = (key) => {
+  const taskData = JSON.parse(localStorage.getItem(key));
+  const safeDate = taskData.date && moment(taskData.date).isValid()
+    ? moment(taskData.date).format("YYYY-MM-DD")
+    : "";
+
+  new Swal({
+    html: `
+      <div class="text-left space-y-4">
+        <h1 class="text-xl font-semibold text-black">Edit Task</h1>
+        <form onsubmit="updateTask(event, '${key}')">
+          <input value="${taskData.task}" id="edit-task" class="px-3 w-full py-2 border border-gray-300 rounded" required>
+          <input type="date" value="${safeDate}" id="edit-date" class="px-3 w-full py-2 border border-gray-300 rounded mt-2" required>
+          <button class="bg-blue-500 text-white px-4 py-2 rounded mt-4 w-full">Update</button>
+        </form>
+      </div>
+    `,
+    showConfirmButton: false,
+  });
+};
+
+// Update task
+const updateTask = (e, key) => {
+  e.preventDefault();
+  const task = document.getElementById("edit-task").value.trim();
+  const date = document.getElementById("edit-date").value;
+
+  if (!task || !date) {
+    alert("Task name and date are required!");
+    return;
+  }
+
+  const payload = { task, date, status: JSON.parse(localStorage.getItem(key)).status };
+  localStorage.setItem(key, JSON.stringify(payload));
+
+  Swal.fire({
+    title: "Task Updated!",
+    text: `"${task}" has been updated.`,
+    icon: "success",
+  }).then(() => location.reload());
+};
+
+// Delete task
+const deleteTask = (key) => {
+  Swal.fire({
+    title: "Delete Task?",
+    text: "This cannot be undone!",
+    icon: "warning",
+    showCancelButton: true,
+  }).then((result) => {
+    if (result.isConfirmed) {
       localStorage.removeItem(key);
-      new Swal({
-        title: "Task Deleted",
-        text: `Your task has been deleted.`,
-        icon: "success",
-        showConfirmButton: true,
-      }).then(() => {
-        location.href = location.href;
-      });
-    };
-  
-    
-  const openDialogEdit = (task, key) => {
-    new Swal({
-      html: `
-         <div class="text-left space-y-4">
-         <h1 class="text-xl font-semibold text-black">Update a task</h1>
-         <form onsubmit="saveTasks(event,'${key}')">
-         <input value='${task}'id="edited-task" class="px-3 w-full py-2 border border-gray-300 rounded"/>
-         <button  id="edited-date" class="bg-blue-500 text-white px-4 py-2 rounded mt-4">Update</button>
-         </form>
-         </div>
-         `,
-      showConfirmButton: false,
-    });
-  };
-  const saveTasks = (e, key) => {
-    e.preventDefault();
-    const editedtaskInput = document.getElementById("edited-task");
-    const editedDateInput = document.getElementById("edited-date");
-    const editedtask = editedtaskInput.value.trim();
-    const editedDate = editedDateInput.value;
-    const payload = JSON.stringify({
-      task: editedtask,
-      date: editedDate,
-      // status: "sheduled",
-    });
-    localStorage.setItem(key, payload);
-    new Swal({
-      title: "Task Updated",
-      text: `Your task "${editedtask}" has been updated.`,
-      icon: "success",
-      // showConfirmButton: true,
-    }).then(() => {
-      location.href = location.href;
-    });
-  };
-  
-  const updateStatus = (e, key) => {
-    const status = e.target.value;
-    const payload = JSON.parse(localStorage.getItem(key));
-    payload.status = status;
-    localStorage.setItem(key, JSON.stringify(payload));
-    new Swal({
-      title: "Task Updated",
-      // text: `Your task "${payload.task}" has been updated.`,
-      icon: "success",
-      // showConfirmButton: true,
-    });
-  };
-  
-  const selectedStatus = (value, status) => {
-    if (value == status) {
-      return "selected";
-    } else {
-      return "";
+      Swal.fire("Deleted!", "Task has been removed.", "success").then(() => location.reload());
     }
-  };
-  
-  
-  const filterTasks = (input) => {
-    const keyword = input.value.trim().toLowerCase();
-    const keys = Object.keys(localStorage);
-    const filteredData = [];
-  
-    for (var key of keys) {
-      const data = JSON.parse(localStorage.getItem(key));
-      if (data.task.toLowerCase().includes(keyword)) {
-        filteredData.push({ key, ...data }); // keep key for later
-      }
-    }
-  
-    const uiContainer = document.getElementById("taskList");
-    uiContainer.innerHTML = ""; // clear previous rows
-  
-    let i = 1;
-    for (var item of filteredData) {
-      const ui = `
-              <tr class="border-b border-slate-200">
-                            <td class="p-3.5">${i}</td>
-                            <td class="text-gray-600">${item.task}</td>
-                            <td class="text-gray-600">${moment(item.date).format(
-                              "DD MMM YYYY"
-                            )}</td>
-                            <td class="text-gray-600">
-                            <select class="border border-gray-300 rounded p-1" onchange="updateStatus(event,'${key}')">
-                            <option value="sheduled" ${selectedStatus(
-                              "sheduled",
-                              item.status
-                            )}>Sheduled</option>  
-        
-                            <option value="completed" ${selectedStatus(
-                              "completed",
-                              item.status
-                            )}>Completed</option>
-                            <option value="inprogress" ${selectedStatus(
-                              "inprogress",
-                              item.status
-                            )}>In Progress</option>
-                            <option value="cancelled" ${selectedStatus(
-                              "cancelled",
-                              item.status
-                            )}>Cancelled</option>
-                            <option value="postponed" ${selectedStatus(
-                              "postponed",
-                              item.status
-                            )}>Postponed</option>
-                            <option value="onhold" ${selectedStatus(
-                              "onhold",
-                              item.status
-                            )}>On Hold</option>
-        
-                            <option value="notstarted" ${selectedStatus(
-                              "notstarted",
-                              item.status
-                            )}>Not Started</option>
-                            <option value="waiting" ${selectedStatus(
-                              "waiting",
-                              item.status
-                            )}>Waiting</option>
-        
-                            </select>
-                            </td>
-                            <td>
-                                <div class="flex items-center gap-3">
-                                    <button onclick="openDialogEdit('${
-                                      item.task
-                                    }','${key}',${item.date})" class="bg-green-600 cursor-pointer w-6 h-6 rounded-full flex items-center justify-center hover:bg-indigo-700 transition-all duration-300 ease-in-out">
-                                        <i class="ri-pencil-line "></i>
-                                    </button>
-                                    <button onclick="deleteTask('${key}')" class="bg-rose-600 cursor-pointer w-6 h-6 rounded-full flex items-center justify-center hover:bg-indigo-700 transition-all duration-300 ease-in-out">
-                                        <i class="ri-delete-bin-6-line "></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        `;
-      uiContainer.innerHTML += ui;
-      i++;
-    }
-  
-  };
-  
+  });
+};
+
+// Update task status
+const updateStatus = (e, key) => {
+  const status = e.target.value;
+  const taskData = JSON.parse(localStorage.getItem(key));
+  taskData.status = status;
+  localStorage.setItem(key, JSON.stringify(taskData));
+};
+
+// Filter tasks by search term
+const filterTasks = (input) => {
+  const keyword = input.value.trim().toLowerCase();
+  const rows = document.querySelectorAll("#taskList tr");
+
+  rows.forEach((row) => {
+    const taskText = row.querySelector("td:nth-child(2)").textContent.toLowerCase();
+    row.style.display = taskText.includes(keyword) ? "" : "none";
+  });
+};
